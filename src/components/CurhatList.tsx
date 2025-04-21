@@ -26,7 +26,7 @@ export default function CurhatList() {
 
     useEffect(() => {
         supabase
-            .from<Curhat>('curhat_anonim')
+            .from<string, Curhat>('curhat_anonim')
             .select('*')
             .order('created_at', { ascending: true })
             .limit(30)
