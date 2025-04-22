@@ -57,7 +57,7 @@ export default function CurhatList() {
                     setHighlightedId(newData.id)
 
                     setTimeout(() => setNewId(null), 5000)
-                    setTimeout(() => setHighlightedId(null), 2000)
+                    setTimeout(() => setHighlightedId(null), 5000)
                 }
             )
             .subscribe()
