@@ -15,11 +15,14 @@ export default function UsersPage() {
     useEffect(() => {
         if (!me) return router.replace('/chat/register')
         supabase
-            .from<User>('anon_users')
+            .from('anon_users')
             .select('*')
             .eq('online', true)
             .neq('id', me)
-            .then(({ data }) => data && setUsers(data))
+            .then(({ data }) => {
+                if (data) setUsers(data as User[])
+            })
+
     }, [me])
 
     const startChat = async (them: string) => {
