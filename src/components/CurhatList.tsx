@@ -48,7 +48,11 @@ export default function CurhatList() {
                     const { x, y } = generateRandomPosition()
                     const withPosition = { ...newData, x, y }
 
-                    setCurhats(prev => [...prev, withPosition])
+                    setCurhats(prev => {
+                        const alreadyExists = prev.some(item => item.id === withPosition.id)
+                        if (alreadyExists) return prev
+                        return [...prev, withPosition]
+                    })
                     setNewId(newData.id)
                     setHighlightedId(newData.id)
 

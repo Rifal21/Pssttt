@@ -34,14 +34,14 @@ const CurhatForm = ({ onSend }: Props) => {
     return (
         <form
             onSubmit={handleSubmit}
-            className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t shadow-md flex gap-2"
+            className="fixed bottom-0 left-0 right-0 p-4  flex gap-2 md:w-1/2 justify-center mx-auto"
         >
             <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tulis curhatanmu..."
-                className="flex-1 p-3 border rounded-full"
+                className="flex-1 p-3 border rounded-full bg-white/10 shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 disabled={loading}
             />
             <button
