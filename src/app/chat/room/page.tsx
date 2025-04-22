@@ -87,16 +87,16 @@ export default function ChatRoomPage() {
             </div>
 
             {/* Message list */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-pink-50 pt-32">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-pink-50 pt-32 pb-20">
                 {messages.map(msg => {
                     const isMine = msg.sender_id === senderId
                     return (
                         <div
                             key={msg.id}
-                            className={`rounded-lg px-3 py-2 shadow max-w-[30%] ${isMine ? 'bg-pink-500 text-white ml-auto' : 'bg-white text-gray-800'}`}
+                            className={`rounded-lg px-3 py-2 shadow max-w-[70%] md:max-w-[30%] ${isMine ? 'bg-pink-500 text-white ml-auto' : 'bg-white text-gray-800'}`}
                         >
                             <p className="text-sm">{msg.message}</p>
-                            <div className="text-[10px] text-gray-500 text-right mt-1">
+                            <div className="text-[10px] text-white text-right mt-1">
                                 {new Date(msg.created_at).toLocaleTimeString()}
                             </div>
                         </div>
