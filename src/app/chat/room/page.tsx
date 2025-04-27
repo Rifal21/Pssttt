@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
@@ -25,20 +24,21 @@ export default function ChatRoomPage() {
 
     const senderId = typeof window !== 'undefined' ? localStorage.getItem('anon-user') : null
 
+    let isOneSignalInitialized = false
+
     useEffect(() => {
-        // Ensure this code runs only on the client side
-        if (typeof window !== 'undefined') {
-            OneSignal.init({
-                appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
-                addTrigger: {
-                    "room_id": roomId,
-                },
-                autoResubscribe: true,
-                // Uncomment the below line to run on localhost. See: https://documentation.onesignal.com/docs/local-testing
-                // allowLocalhostAsSecureOrigin: true
-            });
+        const initOneSignal = async () => {
+            if (typeof window !== 'undefined' && !isOneSignalInitialized) {
+                await OneSignal.init({
+                    appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
+                    autoResubscribe: true,
+                    allowLocalhostAsSecureOrigin: true,
+                })
+                isOneSignalInitialized = true
+            }
         }
-    }, []);
+        initOneSignal()
+    }, [roomId])
 
     useEffect(() => {
         const storedRoom = localStorage.getItem('chat-room')
@@ -57,14 +57,10 @@ export default function ChatRoomPage() {
             if (error) console.error('Error fetching messages:', error)
             else setMessages(data || [])
 
-            // scroll to bottom after loading
             endRef.current?.scrollIntoView({ behavior: 'smooth' })
         }
         fetchMessages()
     }, [router, senderId])
-
-
-
 
     useEffect(() => {
         if (!roomId) return
@@ -83,7 +79,6 @@ export default function ChatRoomPage() {
         return () => void supabase.removeChannel(channel)
     }, [roomId, senderId])
 
-
     const handleSend = async () => {
         if (!input.trim() || !roomId || !senderId) return
         const { error } = await supabase.from('chat_messages').insert([
@@ -100,24 +95,18 @@ export default function ChatRoomPage() {
 
     const sendNotification = async (message: string) => {
         try {
-            await fetch('https://onesignal.com/api/v1/notifications', {
+            await fetch('/api/send-notification', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic os_v2_app_gok5s4euuvekvl7j7dias7qrf43h3coq442eehu2ah7dwmc2nq7dhbt5vkr3lgitcqzdz5wqlled65ecxrsg5x6tcklig6f6kd5jjya' // Ganti dengan REST API Key kamu
                 },
                 body: JSON.stringify({
-                    app_id: '3395d970-94a5-48aa-afe9-f8d0097e112f', // Ganti dengan App ID kamu
-                    included_segments: ['Subscribed Users'],
-                    filters: [
-                        { field: 'tag', key: 'room_id', relation: '=', value: roomId } // Filter berdasarkan room
-                    ],
-                    headings: { en: 'New message in room!' },
-                    contents: { en: message },
+                    roomId,
+                    message,
                 })
             })
         } catch (err) {
-            console.error('Failed to send OneSignal notification', err)
+            console.error('Failed to send notification:', err)
         }
     }
 
@@ -125,9 +114,7 @@ export default function ChatRoomPage() {
         <div className="flex flex-col h-screen">
             {/* Header */}
             <div className="absolute top-20 right-5 flex items-center">
-                <div className="flex items-center ">
-                    <Button onClick={() => router.replace('/chat/users')}>Kembali</Button>
-                </div>
+                <Button onClick={() => router.replace('/chat/users')}>Kembali</Button>
             </div>
 
             {/* Message list */}
