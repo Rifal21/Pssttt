@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import supabase from '@/lib/supabase'
 import { motion, AnimatePresence } from 'framer-motion'
+import OneSignal from 'react-onesignal'
 
 type Curhat = {
     id: string
@@ -23,6 +24,15 @@ export default function CurhatList() {
         const y = Math.random() * 80 // % dari tinggi container
         return { x, y }
     }
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            OneSignal.Notifications.requestPermission()
+        }, 10000)
+
+        return () => clearTimeout(timer)
+    }, [])
+
 
     useEffect(() => {
         supabase
