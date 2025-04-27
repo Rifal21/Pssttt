@@ -43,7 +43,7 @@ export default function CurhatList() {
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'curhat_anonim' },
-                (payload) => {
+                async (payload) => {
                     const newData = payload.new as Curhat
                     const { x, y } = generateRandomPosition()
                     const withPosition = { ...newData, x, y }
@@ -58,6 +58,18 @@ export default function CurhatList() {
 
                     setTimeout(() => setNewId(null), 5000)
                     setTimeout(() => setHighlightedId(null), 5000)
+
+                    await fetch('/api/send-notif', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title: 'Curhatan Baru Datang!',
+                            message: newData.message.substring(0, 60) + '...',
+                        }),
+                    })
+
                 }
             )
             .subscribe()
