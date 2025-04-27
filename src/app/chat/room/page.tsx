@@ -32,7 +32,7 @@ export default function ChatRoomPage() {
                 await OneSignal.init({
                     appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
                     autoResubscribe: true,
-                    allowLocalhostAsSecureOrigin: true,
+                    // allowLocalhostAsSecureOrigin: true,
                 })
                 isOneSignalInitialized = true
             }
