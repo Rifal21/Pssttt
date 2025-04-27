@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import supabase from '@/lib/supabase'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import OneSignal from 'react-onesignal'
 
 type ChatMessage = {
     id: string
@@ -25,9 +26,22 @@ export default function ChatRoomPage() {
     const senderId = typeof window !== 'undefined' ? localStorage.getItem('anon-user') : null
 
     useEffect(() => {
+        // Ensure this code runs only on the client side
+        if (typeof window !== 'undefined') {
+            OneSignal.init({
+                appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
+                autoRegister: true,
+                autoResubscribe: true,
+                // Uncomment the below line to run on localhost. See: https://documentation.onesignal.com/docs/local-testing
+                // allowLocalhostAsSecureOrigin: true
+            });
+        }
+    }, []);
+
+    useEffect(() => {
         const storedRoom = localStorage.getItem('chat-room')
         if (!storedRoom || !senderId) {
-            router.replace('/chat/search')
+            router.replace('/chat/users')
             return
         }
         setRoomId(storedRoom)
@@ -47,6 +61,9 @@ export default function ChatRoomPage() {
         fetchMessages()
     }, [router, senderId])
 
+
+
+
     useEffect(() => {
         if (!roomId) return
         const channel = supabase
@@ -62,7 +79,8 @@ export default function ChatRoomPage() {
             .subscribe()
 
         return () => void supabase.removeChannel(channel)
-    }, [roomId])
+    }, [roomId, senderId])
+
 
     const handleSend = async () => {
         if (!input.trim() || !roomId || !senderId) return
@@ -74,6 +92,26 @@ export default function ChatRoomPage() {
         } else {
             setInput('')
             endRef.current?.scrollIntoView({ behavior: 'smooth' })
+            sendNotification(input.trim())
+        }
+    }
+
+    const sendNotification = async (message: string) => {
+        try {
+            await fetch('https://onesignal.com/api/v1/notifications', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic os_v2_app_gok5s4euuvekvl7j7dias7qrf43h3coq442eehu2ah7dwmc2nq7dhbt5vkr3lgitcqzdz5wqlled65ecxrsg5x6tcklig6f6kd5jjya' // Ganti dengan REST API Key kamu
+                },
+                body: JSON.stringify({
+                    app_id: '3395d970-94a5-48aa-afe9-f8d0097e112f', // Ganti dengan App ID kamu
+                    contents: { en: message },
+                    included_segments: ['All'], // Kirim ke semua user (bisa nanti spesifik user ID)
+                })
+            })
+        } catch (err) {
+            console.error('Failed to send OneSignal notification', err)
         }
     }
 
@@ -93,10 +131,10 @@ export default function ChatRoomPage() {
                     return (
                         <div
                             key={msg.id}
-                            className={`rounded-lg px-3 py-2 shadow max-w-[70%] md:max-w-[30%] ${isMine ? 'bg-pink-500 text-white ml-auto' : 'bg-white text-gray-800'}`}
+                            className={`rounded-lg px-3 py-2 shadow max-w-[70%] md:max-w-[30%] ${isMine ? 'bg-pink-400 text-white ml-auto' : 'bg-white text-gray-800'}`}
                         >
-                            <p className="text-sm">{msg.message}</p>
-                            <div className="text-[10px] text-white text-right mt-1">
+                            <p className="text-base">{msg.message}</p>
+                            <div className="text-[12px] text-gray-500 text-right mt-1">
                                 {new Date(msg.created_at).toLocaleTimeString()}
                             </div>
                         </div>
