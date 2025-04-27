@@ -30,7 +30,9 @@ export default function ChatRoomPage() {
         if (typeof window !== 'undefined') {
             OneSignal.init({
                 appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
-                autoRegister: true,
+                addTrigger: {
+                    "room_id": roomId,
+                },
                 autoResubscribe: true,
                 // Uncomment the below line to run on localhost. See: https://documentation.onesignal.com/docs/local-testing
                 // allowLocalhostAsSecureOrigin: true
@@ -106,8 +108,12 @@ export default function ChatRoomPage() {
                 },
                 body: JSON.stringify({
                     app_id: '3395d970-94a5-48aa-afe9-f8d0097e112f', // Ganti dengan App ID kamu
+                    included_segments: ['Subscribed Users'],
+                    filters: [
+                        { field: 'tag', key: 'room_id', relation: '=', value: roomId } // Filter berdasarkan room
+                    ],
+                    headings: { en: 'New message in room!' },
                     contents: { en: message },
-                    included_segments: ['All'], // Kirim ke semua user (bisa nanti spesifik user ID)
                 })
             })
         } catch (err) {
