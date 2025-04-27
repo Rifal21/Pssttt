@@ -28,7 +28,7 @@ export default function CurhatList() {
     useEffect(() => {
         const timer = setTimeout(() => {
             OneSignal.Notifications.requestPermission()
-        }, 10000)
+        }, 5000)
 
         return () => clearTimeout(timer)
     }, [])
