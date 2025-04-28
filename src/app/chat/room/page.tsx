@@ -32,13 +32,13 @@ export default function ChatRoomPage() {
                 await OneSignal.init({
                     appId: '3395d970-94a5-48aa-afe9-f8d0097e112f',
                     autoResubscribe: true,
-                    // allowLocalhostAsSecureOrigin: true,
                 })
+                OneSignal.Slidedown.promptPush(); // ⬅️ langsung minta izin notifikasi
                 isOneSignalInitialized = true
             }
         }
         initOneSignal()
-    }, [roomId])
+    }, [])
 
     useEffect(() => {
         const storedRoom = localStorage.getItem('chat-room')
@@ -78,6 +78,15 @@ export default function ChatRoomPage() {
 
         return () => void supabase.removeChannel(channel)
     }, [roomId, senderId])
+
+    useEffect(() => {
+        if (roomId) {
+            // ⬅️ Assign tag ke OneSignal user
+            OneSignal.User.addTags({
+                room_id: roomId,
+            })
+        }
+    }, [roomId])
 
     const handleSend = async () => {
         if (!input.trim() || !roomId || !senderId) return
